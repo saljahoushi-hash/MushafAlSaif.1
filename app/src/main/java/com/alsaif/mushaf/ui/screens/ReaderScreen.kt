@@ -41,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -362,8 +364,13 @@ private fun ReaderHeader(
                 tint = ink,
             )
         }
-        IconButton(onClick = onOpenSettings, modifier = Modifier.size(36.dp)) {
-            Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = ink)
+        // زر الألوان مع كتابة واضحة
+        Column(
+            Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = onOpenSettings).padding(horizontal = 4.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Icon(Icons.Filled.Palette, null, tint = ink, modifier = Modifier.size(22.dp))
+            Text("الألوان", color = ink, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
         IconButton(onClick = onBack, modifier = Modifier.size(36.dp)) {
             Icon(Icons.Filled.KeyboardArrowLeft, "رجوع", tint = ink, modifier = Modifier.size(32.dp))

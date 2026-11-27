@@ -79,14 +79,21 @@ fun HomeScreen(vm: MushafViewModel, data: QuranData, open: (Screen) -> Unit, onT
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Box(Modifier.fillMaxWidth()) {
-                    MushafLogo(Modifier.size(74.dp).align(Alignment.Center), background = HeaderGreen, accent = OnAccent, blade = OnAccent)
-                    Box(
-                        Modifier.align(Alignment.TopStart).size(44.dp).clip(CircleShape)
-                            .border(1.dp, OnAccent.copy(alpha = 0.5f), CircleShape).clickable { open(Screen.Settings) },
-                        contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = OnAccent) }
+                    MushafLogo(Modifier.size(120.dp).align(Alignment.Center))
+                    // زر الألوان مع كتابة واضحة
+                    Row(
+                        Modifier.align(Alignment.TopStart).clip(RoundedCornerShape(20.dp))
+                            .background(OnAccent.copy(alpha = 0.15f))
+                            .border(1.dp, OnAccent.copy(alpha = 0.6f), RoundedCornerShape(20.dp))
+                            .clickable { open(Screen.Settings) }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Icon(Icons.Filled.Palette, null, tint = OnAccent, modifier = Modifier.size(20.dp))
+                        Text("الألوان", color = OnAccent, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
-                Text("القرآن الكريم", fontFamily = AppFonts.logo, fontWeight = FontWeight.Bold, fontSize = 34.sp, color = OnAccent)
                 Text("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", fontFamily = AppFonts.quran, color = OnAccent, fontSize = 22.sp)
                 Spacer(Modifier.height(2.dp))
                 Row(

@@ -12,8 +12,8 @@ android {
         applicationId = "com.alsaif.mushaf"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 4
+        versionName = "4.0"
     }
 
     // مفتاح توقيع ثابت: يخلّي كل نسخة جديدة تتثبت فوق القديمة بدون حذف
@@ -67,3 +67,36 @@ dependencies {
 
     implementation("androidx.media3:media3-exoplayer:1.5.1")
 }
+
+// تحميل خطوط المصحف تلقائياً أثناء البناء (Amiri Quran و Aref Ruqaa من Google Fonts)
+// لو فشل التحميل يكمل البناء عادي ويستخدم التطبيق خط الجوال
+val downloadFonts by tasks.registering {
+    val dir = file("src/main/assets/fonts")
+    doLast {
+        dir.mkdirs()
+        mapOf(
+            "AmiriQuran-Regular.ttf" to listOf(
+                "https://mirrors.mit.edu/CTAN/fonts/amiri/AmiriQuran.ttf",
+                "https://raw.githubusercontent.com/google/fonts/main/ofl/amiriquran/AmiriQuran-Regular.ttf",
+                "https://mirrors.ctan.org/fonts/amiri/AmiriQuran.ttf",
+            ),
+            "ArefRuqaa-Bold.ttf" to listOf(
+                "https://raw.githubusercontent.com/google/fonts/main/ofl/arefruqaa/ArefRuqaa-Bold.ttf",
+                "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/arefruqaa/ArefRuqaa-Bold.ttf",
+            ),
+        ).forEach { (name, urls) ->
+            val target = File(dir, name)
+            for (url in urls) {
+                if (target.exists() && target.length() > 10_000) break
+                try {
+                    java.net.URI(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
+                    println("Downloaded font $name from $url (${target.length()} bytes)")
+                } catch (e: Exception) {
+                    target.delete()
+                    println("WARNING: font $name not downloaded from $url: ${e.message}")
+                }
+            }
+        }
+    }
+}
+tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(downloadFonts) }

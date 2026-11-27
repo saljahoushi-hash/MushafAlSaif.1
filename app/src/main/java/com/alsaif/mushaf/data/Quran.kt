@@ -8,6 +8,9 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
+/** مقطع ملوّن بحكم تجويد: من start إلى end في نص العرض، والرمز حسب ترميز alquran.cloud */
+data class TajSpan(val start: Int, val end: Int, val code: Char)
+
 data class Ayah(
     val surah: Int,
     val numberInSurah: Int,
@@ -15,6 +18,8 @@ data class Ayah(
     val juz: Int,
     val page: Int,
     val plain: String, // نص بدون تشكيل للبحث
+    val display: String = text, // نص العرض (نسخة التجويد إن توفرت)
+    val tajweed: List<TajSpan> = emptyList(),
 )
 
 data class Surah(
@@ -41,6 +46,32 @@ class QuranData(val surahs: List<Surah>, val ayahs: List<Ayah>) {
         val q = Arabic.normalize(query).trim()
         if (q.length < 2) return emptyList()
         return ayahs.asSequence().filter { it.plain.contains(q) }.take(limit).toList()
+    }
+}
+
+/** يحوّل ترميز التجويد مثل [h:9421[ٱ] إلى نص عادي + مواضع الألوان */
+object Tajweed {
+    fun parse(src: String): Pair<String, List<TajSpan>> {
+        val sb = StringBuilder(src.length)
+        val spans = ArrayList<TajSpan>()
+        var i = 0
+        while (i < src.length) {
+            val c = src[i]
+            if (c == '[' && i + 1 < src.length && src[i + 1] in 'a'..'z') {
+                val open = src.indexOf('[', i + 2)
+                val close = if (open > 0) src.indexOf(']', open + 1) else -1
+                if (open > 0 && close > 0 && open - i <= 12) {
+                    val start = sb.length
+                    sb.append(src, open + 1, close)
+                    spans += TajSpan(start, sb.length, src[i + 1])
+                    i = close + 1
+                    continue
+                }
+            }
+            sb.append(c)
+            i++
+        }
+        return sb.toString() to spans
     }
 }
 
@@ -78,6 +109,8 @@ object Arabic {
 object QuranRepository {
     private const val SOURCE = "https://api.alquran.cloud/v1/quran/quran-uthmani"
     private const val FILE = "quran-uthmani.json"
+    private const val TAJWEED_SOURCE = "https://api.alquran.cloud/v1/quran/quran-tajweed"
+    private const val TAJWEED_FILE = "quran-tajweed.json"
 
     suspend fun load(context: Context): QuranData = withContext(Dispatchers.IO) {
         val bundled = runCatching { context.assets.open(FILE).bufferedReader().use { it.readText() } }.getOrNull()
@@ -93,7 +126,54 @@ object QuranRepository {
                 text
             }
         }
-        parse(json)
+        val base = parse(json)
+        // نسخة التجويد الملوّنة: اختيارية، لو فشل تحميلها يبقى المصحف بدون تلوين
+        val tajweed = runCatching { loadText(context, TAJWEED_FILE, TAJWEED_SOURCE) }.getOrNull()
+        if (tajweed == null) base else runCatching { mergeTajweed(base, tajweed) }.getOrDefault(base)
+    }
+
+    private fun loadText(context: Context, name: String, url: String): String {
+        runCatching { context.assets.open(name).bufferedReader().use { it.readText() } }.getOrNull()?.let { return it }
+        val cache = File(context.filesDir, name)
+        if (cache.exists() && cache.length() > 100_000) return cache.readText()
+        val text = download(url)
+        val tmp = File(context.filesDir, "$name.tmp")
+        tmp.writeText(text)
+        tmp.renameTo(cache)
+        return text
+    }
+
+    private fun mergeTajweed(base: QuranData, json: String): QuranData {
+        val surahsJson = JSONObject(json).getJSONObject("data").getJSONArray("surahs")
+        val out = ArrayList<Ayah>(base.ayahs.size)
+        var k = 0
+        for (i in 0 until surahsJson.length()) {
+            val s = surahsJson.getJSONObject(i)
+            val number = s.getInt("number")
+            val arr = s.getJSONArray("ayahs")
+            for (j in 0 until arr.length()) {
+                val a = arr.getJSONObject(j)
+                val n = a.getInt("numberInSurah")
+                val original = base.ayahs[k++]
+                if (original.surah != number || original.numberInSurah != n) error("mismatch")
+                var (text, spans) = Tajweed.parse(a.getString("text").trimStart('\uFEFF'))
+                if (n == 1 && number != 1) {
+                    // نحذف البسملة الملتصقة بأول آية مع إزاحة مواضع التلوين
+                    val words = text.split(' ')
+                    if (words.size > 4 && Arabic.normalize(words[0]) == "بسم") {
+                        var cut = 0
+                        repeat(4) { cut = text.indexOf(' ', cut) + 1 }
+                        text = text.substring(cut)
+                        spans = spans.filter { it.end > cut }
+                            .map { TajSpan((it.start - cut).coerceAtLeast(0), it.end - cut, it.code) }
+                    }
+                }
+                val shown = text.trimEnd()
+                out += original.copy(display = shown, tajweed = spans.filter { it.end <= shown.length })
+            }
+        }
+        if (k != base.ayahs.size) error("count mismatch")
+        return QuranData(base.surahs, out)
     }
 
     private fun download(url: String): String {
@@ -159,6 +239,22 @@ class Prefs(context: Context) {
     var reciter: Int
         get() = sp.getInt("reciter", 0)
         set(v) = sp.edit().putInt("reciter", v).apply()
+
+    var readerTheme: Int
+        get() = sp.getInt("readerTheme", 0)
+        set(v) = sp.edit().putInt("readerTheme", v).apply()
+
+    var fontSize: Float
+        get() = sp.getFloat("fontSize", 24f)
+        set(v) = sp.edit().putFloat("fontSize", v).apply()
+
+    var tajweed: Boolean
+        get() = sp.getBoolean("tajweed", true)
+        set(v) = sp.edit().putBoolean("tajweed", v).apply()
+
+    var continuous: Boolean
+        get() = sp.getBoolean("continuous", true)
+        set(v) = sp.edit().putBoolean("continuous", v).apply()
 
     var bookmarks: Set<Int>
         get() = sp.getStringSet("bookmarks", emptySet())!!.mapNotNull { it.toIntOrNull() }.toSet()

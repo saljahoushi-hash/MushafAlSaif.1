@@ -36,6 +36,7 @@ import com.alsaif.mushaf.ui.screens.IndexScreen
 import com.alsaif.mushaf.ui.screens.PlayerScreen
 import com.alsaif.mushaf.ui.screens.ReaderScreen
 import com.alsaif.mushaf.ui.screens.SearchScreen
+import com.alsaif.mushaf.ui.screens.SettingsScreen
 import com.alsaif.mushaf.ui.theme.AppFonts
 import com.alsaif.mushaf.ui.theme.Black
 import com.alsaif.mushaf.ui.theme.Gold
@@ -62,6 +63,7 @@ sealed interface Screen {
     data class Reader(val page: Int) : Screen
     data object Player : Screen
     data object Search : Screen
+    data object Settings : Screen
 }
 
 enum class Tab { Home, Index, Player, Bookmarks }
@@ -90,8 +92,9 @@ fun App(vm: MushafViewModel = viewModel()) {
             is LoadState.Ready -> when (val s = stack.last()) {
                 Screen.Home -> HomeScreen(vm, st.data, ::open, ::switchTab)
                 is Screen.Index -> IndexScreen(vm, st.data, s.tab, onBack = ::back, onOpenPage = { open(Screen.Reader(it)) }, onTab = ::switchTab)
-                is Screen.Reader -> ReaderScreen(vm, st.data, s.page, onBack = ::back, onOpenPlayer = { open(Screen.Player) })
+                is Screen.Reader -> ReaderScreen(vm, st.data, s.page, onBack = ::back, onOpenPlayer = { open(Screen.Player) }, onOpenSettings = { open(Screen.Settings) })
                 Screen.Player -> PlayerScreen(vm, st.data, onBack = ::back)
+                Screen.Settings -> SettingsScreen(vm, st.data, onBack = ::back)
                 Screen.Search -> SearchScreen(st.data, onBack = ::back, onOpenPage = { open(Screen.Reader(it)) })
             }
         }

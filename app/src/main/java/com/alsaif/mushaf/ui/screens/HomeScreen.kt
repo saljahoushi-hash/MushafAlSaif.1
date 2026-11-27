@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -75,7 +76,14 @@ fun HomeScreen(vm: MushafViewModel, data: QuranData, open: (Screen) -> Unit, onT
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                MushafLogo(Modifier.size(74.dp))
+                Box(Modifier.fillMaxWidth()) {
+                    MushafLogo(Modifier.size(74.dp).align(Alignment.Center))
+                    Box(
+                        Modifier.align(Alignment.TopStart).size(44.dp).clip(CircleShape)
+                            .border(1.dp, Line, CircleShape).clickable { open(Screen.Settings) },
+                        contentAlignment = Alignment.Center,
+                    ) { Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = Gold) }
+                }
                 Text("القرآن الكريم", fontFamily = AppFonts.logo, fontWeight = FontWeight.Bold, fontSize = 34.sp, color = GoldLight)
                 Text("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", fontFamily = AppFonts.quran, color = Ink, fontSize = 22.sp)
                 GoldDivider(Modifier.fillMaxWidth().height(10.dp).padding(horizontal = 60.dp))

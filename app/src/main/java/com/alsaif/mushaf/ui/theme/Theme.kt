@@ -151,3 +151,47 @@ fun GoldDivider(modifier: Modifier) {
         drawPath(diamond, Gold)
     }
 }
+
+// ===== ثيمات صفحة المصحف (يختارها المستخدم من الإعدادات) =====
+data class ReaderTheme(
+    val name: String,
+    val page: Color,      // خلفية الصفحة
+    val text: Color,      // لون نص الآيات
+    val accent: Color,    // أرقام الآيات والإطار
+    val header: Color,    // خلفية ترويسة السورة
+    val headerText: Color,
+    val screen: Color,    // خلفية الشاشة حول الصفحة
+)
+
+val READER_THEMES = listOf(
+    ReaderTheme("ذهبي ليلي", Color(0xFF100F0D), Color(0xFFF4EBD6), Color(0xFFD4AF37), Color(0xFF0A0A0A), Color(0xFFF1D57E), Color(0xFF0A0A0A)),
+    ReaderTheme("ورقي كلاسيكي", Color(0xFFFBF5E6), Color(0xFF1F1A12), Color(0xFFA8862A), Color(0xFF1F1A12), Color(0xFFF1D57E), Color(0xFF0A0A0A)),
+    ReaderTheme("أبيض نقي", Color(0xFFFFFFFF), Color(0xFF111111), Color(0xFFB8932F), Color(0xFF111111), Color(0xFFF1D57E), Color(0xFF0A0A0A)),
+    ReaderTheme("سيبيا دافئ", Color(0xFFF1E0BE), Color(0xFF3A2814), Color(0xFF8A5A1E), Color(0xFF3A2814), Color(0xFFF1E0BE), Color(0xFF1A130A)),
+    ReaderTheme("زمردي", Color(0xFF0E2A20), Color(0xFFF2EBD8), Color(0xFFD4AF37), Color(0xFF071A13), Color(0xFFF1D57E), Color(0xFF061510)),
+    ReaderTheme("كحلي ملكي", Color(0xFF0D1626), Color(0xFFE9EEF7), Color(0xFFD4AF37), Color(0xFF070D18), Color(0xFFF1D57E), Color(0xFF070D18)),
+    ReaderTheme("عنابي", Color(0xFF2A0F14), Color(0xFFF5E8E2), Color(0xFFD4AF37), Color(0xFF1A080B), Color(0xFFF1D57E), Color(0xFF14060A)),
+    ReaderTheme("أسود خالص", Color(0xFF000000), Color(0xFFFFFFFF), Color(0xFFD4AF37), Color(0xFF000000), Color(0xFFF1D57E), Color(0xFF000000)),
+)
+
+// ===== ألوان أحكام التجويد =====
+data class TajweedRule(val codes: String, val name: String, val light: Color, val dark: Color)
+
+val TAJWEED_RULES = listOf(
+    TajweedRule("g", "غنّة", Color(0xFFE8700F), Color(0xFFFFA24D)),
+    TajweedRule("a", "إدغام بغنّة", Color(0xFF169777), Color(0xFF3FD1A8)),
+    TajweedRule("u", "إدغام بلا غنّة", Color(0xFF1E8A00), Color(0xFF6BD65A)),
+    TajweedRule("f", "إخفاء", Color(0xFF9400A8), Color(0xFFD46BFF)),
+    TajweedRule("c", "إخفاء شفوي", Color(0xFFC2009F), Color(0xFFFF6BE8)),
+    TajweedRule("w", "إدغام شفوي", Color(0xFF4F9E00), Color(0xFF9BE05A)),
+    TajweedRule("i", "إقلاب", Color(0xFF0A9AD6), Color(0xFF5CD3FF)),
+    TajweedRule("q", "قلقلة", Color(0xFFD10010), Color(0xFFFF5A5F)),
+    TajweedRule("np", "مدّ طبيعي / جائز", Color(0xFF3F6BEA), Color(0xFF86A6FF)),
+    TajweedRule("mo", "مدّ لازم / واجب", Color(0xFF0B1BA8), Color(0xFF6F84FF)),
+    TajweedRule("hsldb", "لا يُنطق / همزة وصل", Color(0xFF9A9A9A), Color(0xFF7D7A73)),
+)
+
+fun tajweedColor(code: Char, darkPage: Boolean): Color? =
+    TAJWEED_RULES.firstOrNull { code in it.codes }?.let { if (darkPage) it.dark else it.light }
+
+val ReaderTheme.isDark: Boolean get() = (page.red * 0.299f + page.green * 0.587f + page.blue * 0.114f) < 0.5f

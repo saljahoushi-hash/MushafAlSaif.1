@@ -37,6 +37,54 @@ class MushafViewModel(app: Application) : AndroidViewModel(app) {
     var lastPage by mutableIntStateOf(prefs.lastPage)
         private set
 
+    /** ثيم صفحة المصحف (من قائمة READER_THEMES) */
+    var readerThemeIndex by mutableIntStateOf(prefs.readerTheme.coerceIn(0, com.alsaif.mushaf.ui.theme.READER_THEMES.lastIndex))
+        private set
+
+    /** حجم خط المصحف */
+    var fontSize by mutableStateOf(prefs.fontSize)
+        private set
+
+    val readerTheme get() = com.alsaif.mushaf.ui.theme.READER_THEMES[readerThemeIndex]
+
+    fun selectReaderTheme(i: Int) {
+        readerThemeIndex = i
+        prefs.readerTheme = i
+    }
+
+    /** persist=false أثناء التكبير بالإصبعين، ونحفظ عند انتهاء الحركة */
+    fun changeFontSize(size: Float, persist: Boolean = true) {
+        fontSize = size.coerceIn(MIN_FONT, MAX_FONT)
+        if (persist) prefs.fontSize = fontSize
+    }
+
+    fun saveFontSize() {
+        prefs.fontSize = fontSize
+    }
+
+    /** تلوين أحكام التجويد */
+    var tajweedOn by mutableStateOf(prefs.tajweed)
+        private set
+
+    fun setTajweed(on: Boolean) {
+        tajweedOn = on
+        prefs.tajweed = on
+    }
+
+    /** true = صفحات متتالية بالتمرير للأسفل، false = صفحة صفحة بالسحب الجانبي */
+    var continuous by mutableStateOf(prefs.continuous)
+        private set
+
+    fun setContinuousMode(on: Boolean) {
+        continuous = on
+        prefs.continuous = on
+    }
+
+    companion object {
+        const val MIN_FONT = 18f
+        const val MAX_FONT = 44f
+    }
+
     /** (تم تحميله، الإجمالي) أثناء تحميل سورة للاستماع بدون إنترنت */
     var download by mutableStateOf<Pair<Int, Int>?>(null)
         private set

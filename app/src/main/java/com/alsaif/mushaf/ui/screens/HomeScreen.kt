@@ -50,6 +50,8 @@ import com.alsaif.mushaf.ui.theme.GoldDivider
 import com.alsaif.mushaf.ui.theme.GoldGradient
 import com.alsaif.mushaf.ui.theme.GoldLight
 import com.alsaif.mushaf.ui.theme.HeaderGradient
+import com.alsaif.mushaf.ui.theme.HeaderGreen
+import com.alsaif.mushaf.ui.theme.OnAccent
 import com.alsaif.mushaf.ui.theme.Ink
 import com.alsaif.mushaf.ui.theme.Line
 import com.alsaif.mushaf.ui.theme.Muted
@@ -71,25 +73,24 @@ fun HomeScreen(vm: MushafViewModel, data: QuranData, open: (Screen) -> Unit, onT
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             // الترويسة
             Column(
-                Modifier.fillMaxWidth().background(HeaderGradient)
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)).background(HeaderGradient)
                     .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Box(Modifier.fillMaxWidth()) {
-                    MushafLogo(Modifier.size(74.dp).align(Alignment.Center))
+                    MushafLogo(Modifier.size(74.dp).align(Alignment.Center), background = HeaderGreen, accent = OnAccent, blade = OnAccent)
                     Box(
                         Modifier.align(Alignment.TopStart).size(44.dp).clip(CircleShape)
-                            .border(1.dp, Line, CircleShape).clickable { open(Screen.Settings) },
+                            .border(1.dp, OnAccent.copy(alpha = 0.5f), CircleShape).clickable { open(Screen.Settings) },
                         contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = Gold) }
+                    ) { Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = OnAccent) }
                 }
-                Text("القرآن الكريم", fontFamily = AppFonts.logo, fontWeight = FontWeight.Bold, fontSize = 34.sp, color = GoldLight)
-                Text("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", fontFamily = AppFonts.quran, color = Ink, fontSize = 22.sp)
-                GoldDivider(Modifier.fillMaxWidth().height(10.dp).padding(horizontal = 60.dp))
+                Text("القرآن الكريم", fontFamily = AppFonts.logo, fontWeight = FontWeight.Bold, fontSize = 34.sp, color = OnAccent)
+                Text("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", fontFamily = AppFonts.quran, color = OnAccent, fontSize = 22.sp)
+                Spacer(Modifier.height(2.dp))
                 Row(
-                    Modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(25.dp)).background(Surface2)
-                        .border(1.dp, Line, RoundedCornerShape(25.dp))
+                    Modifier.fillMaxWidth().height(50.dp).clip(RoundedCornerShape(25.dp)).background(OnAccent)
                         .clickable { open(Screen.Search) }.padding(horizontal = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -117,7 +118,7 @@ fun HomeScreen(vm: MushafViewModel, data: QuranData, open: (Screen) -> Unit, onT
                     Box(
                         Modifier.clip(RoundedCornerShape(14.dp)).background(GoldGradient)
                             .padding(horizontal = 22.dp, vertical = 12.dp),
-                    ) { Text("متابعة", color = Black, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
+                    ) { Text("متابعة", color = OnAccent, fontSize = 15.sp, fontWeight = FontWeight.Bold) }
                 }
                 Bar(vm.lastPage / data.pageCount.toFloat())
             }
@@ -156,8 +157,8 @@ fun HomeScreen(vm: MushafViewModel, data: QuranData, open: (Screen) -> Unit, onT
                             .padding(horizontal = 16.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.PlayArrow, null, tint = Black, modifier = Modifier.size(18.dp))
-                        Text("استمع", color = Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Filled.PlayArrow, null, tint = OnAccent, modifier = Modifier.size(18.dp))
+                        Text("استمع", color = OnAccent, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                     Box(
                         Modifier.clip(RoundedCornerShape(20.dp)).border(1.dp, Gold, RoundedCornerShape(20.dp))

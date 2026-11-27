@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -24,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,9 +35,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -43,6 +50,9 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
@@ -122,25 +132,16 @@ fun ReaderScreen(
     }
 
     Column(Modifier.fillMaxSize().background(Black)) {
-        TopBar(
-            title = "سورة ${data.surah(first.surah).name}",
-            subtitle = "الجزء ${Arabic.digits(first.juz)} · صفحة ${Arabic.digits(page)}",
+        ReaderHeader(
+            surah = "${Arabic.digits(first.surah)} سُورَةُ ${data.surah(first.surah).name}",
+            juz = "الجُزْءُ ${Arabic.digits(first.juz)}",
+            page = Arabic.digits(page),
+            theme = theme,
+            marked = page in vm.bookmarks,
             onBack = onBack,
-        ) {
-            val marked = page in vm.bookmarks
-            Row {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = Gold)
-                }
-                IconButton(onClick = { vm.toggleBookmark(page) }) {
-                    Icon(
-                        if (marked) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
-                        if (marked) "إزالة العلامة" else "حفظ علامة",
-                        tint = Gold,
-                    )
-                }
-            }
-        }
+            onOpenSettings = onOpenSettings,
+            onBookmark = { vm.toggleBookmark(page) },
+        )
 
         val onTap: (Ayah) -> Unit = { a -> vm.playFrom(a.surah, a.numberInSurah) }
 
@@ -192,9 +193,9 @@ private fun PageSeparator(pageNumber: Int, theme: ReaderTheme) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.weight(1f).height(1.dp).background(theme.accent.copy(alpha = 0.45f)))
-        Text(Arabic.digits(pageNumber), color = theme.accent, fontSize = 15.sp)
-        Box(Modifier.weight(1f).height(1.dp).background(theme.accent.copy(alpha = 0.45f)))
+        Box(Modifier.weight(1f).height(1.dp).background(theme.lines.takeIf { it.alpha > 0f } ?: theme.accent.copy(alpha = 0.45f)))
+        Text(pageNumber.toString(), color = theme.text, fontSize = 26.sp, fontFamily = FontFamily.Serif)
+        Box(Modifier.weight(1f).height(1.dp).background(theme.lines.takeIf { it.alpha > 0f } ?: theme.accent.copy(alpha = 0.45f)))
     }
 }
 
@@ -210,20 +211,15 @@ fun MushafPage(
     tajweed: Boolean,
     onAyahTap: (Ayah) -> Unit,
 ) {
-    Box(
-        Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 8.dp)
-            .background(theme.page, RoundedCornerShape(8.dp))
-            .border(2.dp, theme.accent, RoundedCornerShape(8.dp))
-            .padding(5.dp)
-            .border(0.7.dp, theme.accent.copy(alpha = 0.45f), RoundedCornerShape(4.dp)),
-    ) {
+    Box(Modifier.fillMaxSize().background(theme.page)) {
         Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 14.dp, vertical = 16.dp),
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 10.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             PageContent(ayahs, data, pageNumber, play, theme, fontSize, tajweed, onAyahTap)
-            Spacer(Modifier.height(6.dp))
-            Text(Arabic.digits(pageNumber), color = theme.accent, fontSize = 13.sp)
+            Spacer(Modifier.height(10.dp))
+            Text(pageNumber.toString(), color = theme.text, fontSize = 30.sp, fontFamily = FontFamily.Serif)
+            Spacer(Modifier.height(10.dp))
         }
     }
 }
@@ -264,15 +260,27 @@ fun PageContent(
                     Text(BASMALA, fontFamily = AppFonts.quran, fontSize = fontSize.sp, color = theme.text, textAlign = TextAlign.Center)
                 }
             }
-            Text(
-                text = ayahText(block, play, theme, tajweed, onAyahTap),
-                fontFamily = AppFonts.quran,
-                fontSize = fontSize.sp,
-                lineHeight = (fontSize * 2f).sp,
-                color = theme.text,
-                textAlign = if (pageNumber <= 2) TextAlign.Center else TextAlign.Justify,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            key(head.surah, head.numberInSurah) {
+                var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+                Text(
+                    text = ayahText(block, play, theme, tajweed, onAyahTap),
+                    fontFamily = AppFonts.quran,
+                    fontSize = fontSize.sp,
+                    lineHeight = (fontSize * 2f).sp,
+                    color = theme.text,
+                    textAlign = if (pageNumber <= 2) TextAlign.Center else TextAlign.Justify,
+                    onTextLayout = { layout = it },
+                    modifier = Modifier.fillMaxWidth().drawBehind {
+                        // خط رفيع تحت كل سطر مثل صفحات المصحف
+                        val l = layout ?: return@drawBehind
+                        if (theme.lines.alpha == 0f) return@drawBehind
+                        for (i in 0 until l.lineCount) {
+                            val y = l.getLineBottom(i)
+                            drawLine(theme.lines, Offset(-10.dp.toPx(), y), Offset(size.width + 10.dp.toPx(), y), strokeWidth = 1.5.dp.toPx())
+                        }
+                    },
+                )
+            }
         }
     }
 }
@@ -288,7 +296,7 @@ private fun ayahText(
     for (a in block) {
         val active = play.surah == a.surah && play.ayah == a.numberInSurah
         withLink(LinkAnnotation.Clickable(tag = "${a.surah}:${a.numberInSurah}") { onAyahTap(a) }) {
-            withStyle(SpanStyle(background = if (active) theme.accent.copy(alpha = 0.25f) else Color.Transparent)) {
+            withStyle(SpanStyle(background = if (active) theme.highlight else Color.Transparent)) {
                 if (tajweed && a.tajweed.isNotEmpty()) {
                     // تلوين أحكام التجويد
                     var pos = 0
@@ -307,7 +315,8 @@ private fun ayahText(
                 } else {
                     append(a.display)
                 }
-                withStyle(SpanStyle(color = theme.accent)) { append(" ﴿${Arabic.digits(a.numberInSurah)}﴾ ") }
+                // رقم الآية داخل دائرة (علامة نهاية الآية ۝)
+                withStyle(SpanStyle(color = theme.accent)) { append(" \u06DD${Arabic.digits(a.numberInSurah)} ") }
             }
         }
     }
@@ -318,9 +327,58 @@ private fun SurahHeader(name: String, theme: ReaderTheme) {
     Box(
         Modifier.fillMaxWidth().height(52.dp)
             .background(theme.header, RoundedCornerShape(26.dp))
-            .border(1.5.dp, theme.accent, RoundedCornerShape(26.dp)),
+            .border(1.5.dp, theme.headerText.copy(alpha = 0.6f), RoundedCornerShape(26.dp)),
         contentAlignment = Alignment.Center,
     ) {
         Text("سُورَةُ $name", fontFamily = AppFonts.quran, fontSize = 22.sp, color = theme.headerText)
+    }
+}
+
+/** شريط أعلى صفحة المصحف: اسم السورة · رقم الصفحة · الجزء */
+@Composable
+private fun ReaderHeader(
+    surah: String,
+    juz: String,
+    page: String,
+    theme: ReaderTheme,
+    marked: Boolean,
+    onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onBookmark: () -> Unit,
+) {
+    val ink = theme.headerText
+    Row(
+        Modifier.fillMaxWidth().background(theme.bar).padding(horizontal = 6.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        HeaderPill(surah, theme, Modifier.weight(1f))
+        Text(page, color = ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        HeaderPill(juz, theme, Modifier.weight(1f))
+        IconButton(onClick = onBookmark, modifier = Modifier.size(36.dp)) {
+            Icon(
+                if (marked) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                if (marked) "إزالة العلامة" else "حفظ علامة",
+                tint = ink,
+            )
+        }
+        IconButton(onClick = onOpenSettings, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Filled.Palette, "ألوان المصحف وحجم الخط", tint = ink)
+        }
+        IconButton(onClick = onBack, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Filled.KeyboardArrowLeft, "رجوع", tint = ink, modifier = Modifier.size(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun HeaderPill(text: String, theme: ReaderTheme, modifier: Modifier) {
+    Box(
+        modifier.height(40.dp)
+            .background(theme.header, RoundedCornerShape(10.dp))
+            .border(1.dp, theme.headerText.copy(alpha = 0.55f), RoundedCornerShape(10.dp)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text, color = theme.headerText, fontFamily = AppFonts.quran, fontSize = 15.sp, maxLines = 1)
     }
 }

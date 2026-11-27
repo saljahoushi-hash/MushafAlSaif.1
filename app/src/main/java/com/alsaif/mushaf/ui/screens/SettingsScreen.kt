@@ -181,7 +181,7 @@ private fun ThemeCard(t: ReaderTheme, selected: Boolean, modifier: Modifier, onC
                 Box(
                     Modifier.align(Alignment.TopEnd).padding(6.dp).size(22.dp).clip(CircleShape).background(Gold),
                     contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Filled.Check, "مختار", tint = Black, modifier = Modifier.size(16.dp)) }
+                ) { Icon(Icons.Filled.Check, "مختار", tint = com.alsaif.mushaf.ui.theme.OnAccent, modifier = Modifier.size(16.dp)) }
             }
         }
         Text(

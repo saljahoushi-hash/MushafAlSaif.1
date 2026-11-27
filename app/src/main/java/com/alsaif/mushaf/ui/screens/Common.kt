@@ -74,7 +74,7 @@ fun TopBar(title: String, subtitle: String? = null, onBack: (() -> Unit)?, actio
 
 @Composable
 fun BottomNav(current: Tab, onTab: (Tab) -> Unit) {
-    Column(Modifier.background(Color(0xFF0F0E0C))) {
+    Column(Modifier.background(Black)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(Line))
         Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
             NavItem(Icons.Filled.Home, "الرئيسية", current == Tab.Home) { onTab(Tab.Home) }
@@ -111,7 +111,7 @@ fun GoldPlayButton(playing: Boolean, size: Int, onClick: () -> Unit) {
         Icon(
             if (playing) Icons.Filled.Pause else Icons.Filled.PlayArrow,
             if (playing) "إيقاف مؤقت" else "تشغيل",
-            tint = Black,
+            tint = com.alsaif.mushaf.ui.theme.OnAccent,
             modifier = Modifier.size((size * 0.46f).dp),
         )
     }
@@ -146,7 +146,7 @@ fun MiniPlayer(state: PlayState, data: QuranData, reciterName: String, onToggle:
 fun Modifier.luxCard(radius: Int = 20): Modifier =
     this.clip(RoundedCornerShape(radius.dp))
         .background(Surface)
-        .border(1.dp, GoldBorder, RoundedCornerShape(radius.dp))
+        .border(1.dp, Line, RoundedCornerShape(radius.dp))
 
 @Composable
 fun SectionTitle(text: String) {

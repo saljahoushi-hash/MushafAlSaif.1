@@ -119,7 +119,7 @@ private fun Splash(error: String?, onRetry: () -> Unit) {
         } else {
             Text("تعذّر تحميل المصحف. تأكد من الاتصال بالإنترنت في أول تشغيل.", color = Muted, textAlign = TextAlign.Center)
             Spacer(Modifier.height(16.dp))
-            Button(onClick = onRetry, colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Black)) {
+            Button(onClick = onRetry, colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = com.alsaif.mushaf.ui.theme.OnAccent)) {
                 Text("إعادة المحاولة")
             }
         }

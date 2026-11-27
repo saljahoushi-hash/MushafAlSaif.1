@@ -3,7 +3,7 @@ package com.alsaif.mushaf.ui.theme
 import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -17,21 +17,23 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.Typeface
 
-// ===== الهوية: أسود فاخر + ذهبي =====
-val Black = Color(0xFF0A0A0A)        // الخلفية
-val Surface = Color(0xFF151412)      // البطاقات
-val Surface2 = Color(0xFF1E1C18)     // عناصر مرفوعة
-val Gold = Color(0xFFD4AF37)         // الذهبي الأساسي
-val GoldLight = Color(0xFFF1D57E)    // لمعة الذهب
-val GoldDeep = Color(0xFFA8862A)     // ظل الذهب
-val Ink = Color(0xFFF4EBD6)          // النص الأساسي (عاجي دافئ)
-val Muted = Color(0xFF9A9080)        // نص ثانوي
-val Line = Color(0xFF2C281F)         // الفواصل
-val PageBg = Color(0xFF100F0D)       // صفحة المصحف
+// ===== الهوية: فاتح + أخضر (بدون أسود ولا ذهبي) =====
+val Black = Color(0xFFF4F7F5)        // خلفية الشاشات (فاتحة)
+val Surface = Color(0xFFFFFFFF)      // البطاقات
+val Surface2 = Color(0xFFE9F3ED)     // عناصر مرفوعة
+val Gold = Color(0xFF1E8A5A)         // اللون المميّز: أخضر
+val GoldLight = Color(0xFF0E4A3A)    // العناوين: أخضر داكن
+val GoldDeep = Color(0xFF146B45)     // أخضر أعمق
+val Ink = Color(0xFF1B1F1D)          // النص الأساسي
+val Muted = Color(0xFF6B7A72)        // نص ثانوي
+val Line = Color(0xFFD9E4DE)         // الفواصل
+val PageBg = Color(0xFFF2F7EC)       // صفحة المصحف
+val OnAccent = Color(0xFFFFFFFF)     // نص فوق الأخضر
+val HeaderGreen = Color(0xFF0E5A40)  // ترويسة خضراء داكنة
 
-val GoldGradient = Brush.linearGradient(listOf(GoldLight, Gold, GoldDeep))
-val GoldBorder = Brush.linearGradient(listOf(GoldLight.copy(alpha = 0.9f), GoldDeep.copy(alpha = 0.5f), GoldLight.copy(alpha = 0.9f)))
-val HeaderGradient = Brush.verticalGradient(listOf(Color(0xFF1C1810), Black))
+val GoldGradient = Brush.linearGradient(listOf(Color(0xFF27A06A), Gold, GoldDeep))
+val GoldBorder = Brush.linearGradient(listOf(Gold.copy(alpha = 0.9f), GoldDeep.copy(alpha = 0.5f), Gold.copy(alpha = 0.9f)))
+val HeaderGradient = Brush.linearGradient(listOf(Color(0xFF0B4F3A), Color(0xFF1E8A5A)))
 
 /**
  * الخطوط: ضع الملفات داخل app/src/main/assets/fonts/ (من Google Fonts):
@@ -60,11 +62,11 @@ object AppFonts {
 @Composable
 fun MushafTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = darkColorScheme(
+        colorScheme = lightColorScheme(
             primary = Gold,
-            onPrimary = Black,
+            onPrimary = OnAccent,
             secondary = GoldLight,
-            onSecondary = Black,
+            onSecondary = OnAccent,
             background = Black,
             onBackground = Ink,
             surface = Surface,
@@ -161,9 +163,18 @@ data class ReaderTheme(
     val header: Color,    // خلفية ترويسة السورة
     val headerText: Color,
     val screen: Color,    // خلفية الشاشة حول الصفحة
+    val highlight: Color = accent.copy(alpha = 0.25f), // تظليل الآية المتلوّة
+    val lines: Color = Color.Transparent,              // خطوط بين الأسطر
+    val bar: Color = header,                           // شريط اسم السورة والجزء
 )
 
 val READER_THEMES = listOf(
+    ReaderTheme(
+        "أخضر المصحف",
+        page = Color(0xFFF2F7EC), text = Color(0xFF111111), accent = Color(0xFF111111),
+        header = Color(0xFFCFE6C6), headerText = Color(0xFF0E4A3A), screen = Color(0xFFF2F7EC),
+        highlight = Color(0xFFDCEBD2), lines = Color(0xFFD3DCD0), bar = Color(0xFF9CC79F),
+    ),
     ReaderTheme("ذهبي ليلي", Color(0xFF100F0D), Color(0xFFF4EBD6), Color(0xFFD4AF37), Color(0xFF0A0A0A), Color(0xFFF1D57E), Color(0xFF0A0A0A)),
     ReaderTheme("ورقي كلاسيكي", Color(0xFFFBF5E6), Color(0xFF1F1A12), Color(0xFFA8862A), Color(0xFF1F1A12), Color(0xFFF1D57E), Color(0xFF0A0A0A)),
     ReaderTheme("أبيض نقي", Color(0xFFFFFFFF), Color(0xFF111111), Color(0xFFB8932F), Color(0xFF111111), Color(0xFFF1D57E), Color(0xFF0A0A0A)),

@@ -13,7 +13,7 @@
         <path
             android:pathData="M44,44h112v112h-112z"
             android:strokeWidth="4"
-            android:strokeColor="#D4AF37" />
+            android:strokeColor="#A6D19C" />
         <group
             android:pivotX="100"
             android:pivotY="100"
@@ -21,22 +21,22 @@
             <path
                 android:pathData="M44,44h112v112h-112z"
                 android:strokeWidth="4"
-                android:strokeColor="#D4AF37" />
+                android:strokeColor="#A6D19C" />
         </group>
         <path
-            android:fillColor="#0A0A0A"
+            android:fillColor="#0E4A3A"
             android:pathData="M50,100a50,50 0 1,0 100,0a50,50 0 1,0 -100,0" />
         <path
-            android:fillColor="#F1D57E"
+            android:fillColor="#DDEFD6"
             android:pathData="M100,56L105,66L105,114L95,114L95,66Z" />
         <path
-            android:fillColor="#D4AF37"
+            android:fillColor="#A6D19C"
             android:pathData="M87.5,113h25a2.5,2.5 0 0 1 0,5h-25a2.5,2.5 0 0 1 0,-5z" />
         <path
-            android:fillColor="#D4AF37"
+            android:fillColor="#A6D19C"
             android:pathData="M97.5,118h5v9h-5z" />
         <path
-            android:fillColor="#D4AF37"
+            android:fillColor="#A6D19C"
             android:pathData="M62,128Q81,119 100,129Q119,119 138,128L138,138Q119,129 100,139Q81,129 62,138Z" />
     </group>
 </vector>

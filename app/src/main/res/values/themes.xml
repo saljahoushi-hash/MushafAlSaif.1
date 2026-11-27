@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#0A0A0A</color>
+    <color name="ic_launcher_background">#0E4A3A</color>
+    <color name="window_background">#F4F7F5</color>
     <style name="Theme.Mushaf" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#0A0A0A</item>
-        <item name="android:navigationBarColor">#0A0A0A</item>
-        <item name="android:windowBackground">@color/ic_launcher_background</item>
+        <item name="android:statusBarColor">#0B4F3A</item>
+        <item name="android:navigationBarColor">#F4F7F5</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

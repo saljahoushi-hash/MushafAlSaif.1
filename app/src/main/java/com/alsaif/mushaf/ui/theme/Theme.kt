@@ -2,6 +2,9 @@ package com.alsaif.mushaf.ui.theme
 
 import android.content.Context
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.alsaif.mushaf.R
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -79,50 +82,20 @@ fun MushafTheme(content: @Composable () -> Unit) {
     )
 }
 
-/** شعار مصحف السيف: سيف قائم من مصحف مفتوح داخل نجمة ثمانية */
+/** شعار التطبيق: محراب بزخارف إسلامية ومصحف مفتوح على رحل وهلال */
 @Composable
 fun MushafLogo(
     modifier: Modifier,
-    background: Color = Black,
-    accent: Color = Gold,
-    blade: Color = GoldLight,
-    drawBackground: Boolean = true,
+    @Suppress("UNUSED_PARAMETER") background: Color = Black,
+    @Suppress("UNUSED_PARAMETER") accent: Color = Gold,
+    @Suppress("UNUSED_PARAMETER") blade: Color = GoldLight,
+    @Suppress("UNUSED_PARAMETER") drawBackground: Boolean = true,
 ) {
-    Canvas(modifier) {
-        val s = size.minDimension / 200f
-        fun p(x: Float, y: Float) = Offset(x * s, y * s)
-        if (drawBackground) {
-            drawRoundRect(background, size = Size(200 * s, 200 * s), cornerRadius = CornerRadius(46 * s))
-            drawRoundRect(
-                GoldBorder, topLeft = p(3f, 3f), size = Size(194 * s, 194 * s),
-                cornerRadius = CornerRadius(43 * s), style = Stroke(3 * s),
-            )
-        }
-        val square = Size(112 * s, 112 * s)
-        drawRect(accent, topLeft = p(44f, 44f), size = square, style = Stroke(3.5f * s))
-        rotate(45f, pivot = p(100f, 100f)) {
-            drawRect(accent, topLeft = p(44f, 44f), size = square, style = Stroke(3.5f * s))
-        }
-        drawCircle(background, radius = 50 * s, center = p(100f, 100f))
-        drawCircle(accent.copy(alpha = 0.35f), radius = 50 * s, center = p(100f, 100f), style = Stroke(1.2f * s))
-        val bladePath = Path().apply {
-            moveTo(100 * s, 56 * s); lineTo(105 * s, 66 * s); lineTo(105 * s, 114 * s)
-            lineTo(95 * s, 114 * s); lineTo(95 * s, 66 * s); close()
-        }
-        drawPath(bladePath, blade)
-        drawRoundRect(accent, topLeft = p(85f, 113f), size = Size(30 * s, 5 * s), cornerRadius = CornerRadius(2.5f * s))
-        drawRoundRect(accent, topLeft = p(97.5f, 118f), size = Size(5 * s, 9 * s), cornerRadius = CornerRadius(1.5f * s))
-        val book = Path().apply {
-            moveTo(62 * s, 128 * s)
-            quadraticBezierTo(81 * s, 119 * s, 100 * s, 129 * s)
-            quadraticBezierTo(119 * s, 119 * s, 138 * s, 128 * s)
-            lineTo(138 * s, 138 * s)
-            quadraticBezierTo(119 * s, 129 * s, 100 * s, 139 * s)
-            quadraticBezierTo(81 * s, 129 * s, 62 * s, 138 * s)
-            close()
-        }
-        drawPath(book, accent)
-    }
+    Image(
+        painter = painterResource(R.drawable.app_logo),
+        contentDescription = "شعار القرآن الكريم",
+        modifier = modifier,
+    )
 }
 
 /** شارة النجمة الثمانية لأرقام السور */

@@ -14,8 +14,8 @@ android {
         applicationId = "com.alsaif.mushaf"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "4.0"
+        versionCode = 5
+        versionName = "5.0"
     }
 
     // مفتاح توقيع ثابت: يخلّي كل نسخة جديدة تتثبت فوق القديمة بدون حذف

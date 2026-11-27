@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- شعار مصحف السيف: سيف قائم من مصحف مفتوح داخل نجمة ثمانية -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <group
+        android:pivotX="100"
+        android:pivotY="100"
+        android:scaleX="0.62"
+        android:scaleY="0.62">
+        <path
+            android:pathData="M44,44h112v112h-112z"
+            android:strokeWidth="4"
+            android:strokeColor="#D4AF37" />
+        <group
+            android:pivotX="100"
+            android:pivotY="100"
+            android:rotation="45">
+            <path
+                android:pathData="M44,44h112v112h-112z"
+                android:strokeWidth="4"
+                android:strokeColor="#D4AF37" />
+        </group>
+        <path
+            android:fillColor="#0A0A0A"
+            android:pathData="M50,100a50,50 0 1,0 100,0a50,50 0 1,0 -100,0" />
+        <path
+            android:fillColor="#F1D57E"
+            android:pathData="M100,56L105,66L105,114L95,114L95,66Z" />
+        <path
+            android:fillColor="#D4AF37"
+            android:pathData="M87.5,113h25a2.5,2.5 0 0 1 0,5h-25a2.5,2.5 0 0 1 0,-5z" />
+        <path
+            android:fillColor="#D4AF37"
+            android:pathData="M97.5,118h5v9h-5z" />
+        <path
+            android:fillColor="#D4AF37"
+            android:pathData="M62,128Q81,119 100,129Q119,119 138,128L138,138Q119,129 100,139Q81,129 62,138Z" />
+    </group>
+</vector>

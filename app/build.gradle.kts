@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -89,7 +91,7 @@ val downloadFonts by tasks.registering {
             for (url in urls) {
                 if (target.exists() && target.length() > 10_000) break
                 try {
-                    java.net.URI(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
+                    URI(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
                     println("Downloaded font $name from $url (${target.length()} bytes)")
                 } catch (e: Exception) {
                     target.delete()
